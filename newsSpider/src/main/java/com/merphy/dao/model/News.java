@@ -1,11 +1,14 @@
 package com.merphy.dao.model;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author yibaowei on 9/9/18.
  */
+@Component
 public class News implements Serializable{
     private static final long serialVersionUID = -5548428266189700916L;
 

@@ -4,6 +4,7 @@
 <configuration>
     <!-- 别名 -->
     <typeAliases>
-        <package name="com.merphy.dao"/>
+        <package name="com.merphy.dao.model"/>
     </typeAliases>
+
 </configuration>

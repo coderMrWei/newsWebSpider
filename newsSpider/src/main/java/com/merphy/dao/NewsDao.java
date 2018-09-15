@@ -10,5 +10,7 @@ import java.util.Map;
 public interface NewsDao {
     News getNewsById(Integer id);
     List<News> queryNews(Map<String,Object> queryParam);
-    Long getTotal(Map<String,Object> queryParam);
+    Long getTotal();
+    Boolean insert(News news);
+    //Boolean deleteNews(Long id);
 }
