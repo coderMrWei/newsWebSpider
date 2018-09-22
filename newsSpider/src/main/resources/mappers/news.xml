@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.merphy.dao.NewsDao">
+
+    <resultMap type="com.merphy.dao.model.News" id="NewsResult">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="titleImage" column="title_image"/>
+        <result property="content" column="content"/>
+        <result property="tag" column="tag"/>
+        <result property="sourceWebSite" column="source_website"/>
+        <result property="sourceWebSiteUrl" column="source_website_url"/>
+        <result property="sourceUrl" column="source_url"/>
+        <result property="visitCount" column="visit_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="about" column="about"/>
+    </resultMap>
+
+    <select id="getNewsById" parameterType="int" resultMap="NewsResult">
+        select * from news where id=#{id}
+    </select>
+
+    <select id="queryNews" parameterType="Map" resultMap="NewsResult">
+        select * from news
+        <where>
+            <if test="id!=null">
+                and id=#{id}
+            </if>
+            <if test="title!=null and title!=''">
+                and title like #{title}
+            </if>
+            <if test="tag!=null and tag!=''">
+                and tag like #{tag}
+            </if>
+            <if test="sourceWebSite!=null and sourceWebSite!=''">
+                and source_website like #{sourceWebSite}
+            </if>
+            <if test="sourceWebSiteUrl!=null and sourceWebSiteUrl!=''">
+                and source_website_url like #{sourceWebSiteUrl}
+            </if>
+            <if test="sourceUrl!=null and sourceUrl!=''">
+                and source_url like #{sourceUrl}
+            </if>
+            <if test="createTime!=null and createTime!=''">
+                and create_time >= #{createTime}
+            </if>
+        </where>
+        <if test="start!=null and size!=null">
+            limit #{start},#{size}
+        </if>
+    </select>
+
+    <select id="getTotal" resultType="Long">
+        select count(*) from news
+    </select>
+
+    <insert id="insert" parameterType="com.merphy.dao.model.News" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO news(title,title_image,content,tag,source_website,source_website_url,source_url,visit_count,comment_count,create_time,update_time,about)
+        VALUE (#{title},#{titleImage},#{content},#{tag},#{sourceWebSite},#{sourceWebSiteUrl},#{sourceUrl},#{visitCount},#{commentCount},#{createTime},#{updateTime},#{about})
+    </insert>
+
+    <insert id="batchInsert" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO news(title,title_image,content,tag,source_website,source_website_url,source_url,visit_count,comment_count,create_time,update_time,about) VALUES
+        <foreach collection="list" index="index" item="news" separator=",">
+            (#{news.title},#{news.titleImage},#{news.content},#{news.tag},#{news.sourceWebSite},#{news.sourceWebSiteUrl},#{news.sourceUrl},#{news.visitCount},#{news.commentCount},#{news.createTime},#{news.updateTime},#{news.about})
+        </foreach>
+    </insert>
+
+    <delete id="deleteNews" parameterType="int">
+        DELETE from news WHERE id=#{id}
+    </delete>
+</mapper>
