@@ -24,7 +24,7 @@
         select * from news where id=#{id}
     </select>
 
-    <select id="queryNews" parameterType="Map" resultMap="List">
+    <select id="queryNews" parameterType="Map" resultMap="NewsResult">
         select * from news
         <where>
             <if test="id!=null">
@@ -53,11 +53,24 @@
             limit #{start},#{size}
         </if>
     </select>
-    <insert id="insert" parameterType="com.merphy.dao.model.News">
-        INSERT INTO news(title,title_image,content,tag,source_website,source_website_url,source_url,visit_count,comment_count,create_time,update_time,about)
-        VALUE (#{title},#{titleImage},#{content},#{tag},#{sourceWebSite},#{sourceWebSiteUrl},#{sourceUrl},#{visitCount},#{commentCount},#{createTime},#{updateTime},#{about})
-    </insert>
+
     <select id="getTotal" resultType="Long">
         select count(*) from news
     </select>
+
+    <insert id="insert" parameterType="com.merphy.dao.model.News" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO news(title,title_image,content,tag,source_website,source_website_url,source_url,visit_count,comment_count,create_time,update_time,about)
+        VALUE (#{title},#{titleImage},#{content},#{tag},#{sourceWebSite},#{sourceWebSiteUrl},#{sourceUrl},#{visitCount},#{commentCount},#{createTime},#{updateTime},#{about})
+    </insert>
+
+    <insert id="batchInsert" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO news(title,title_image,content,tag,source_website,source_website_url,source_url,visit_count,comment_count,create_time,update_time,about) VALUES
+        <foreach collection="list" index="index" item="news" separator=",">
+            (#{news.title},#{news.titleImage},#{news.content},#{news.tag},#{news.sourceWebSite},#{news.sourceWebSiteUrl},#{news.sourceUrl},#{news.visitCount},#{news.commentCount},#{news.createTime},#{news.updateTime},#{news.about})
+        </foreach>
+    </insert>
+
+    <delete id="deleteNews" parameterType="int">
+        DELETE from news WHERE id=#{id}
+    </delete>
 </mapper>

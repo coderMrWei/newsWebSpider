@@ -23,18 +23,24 @@
 
 
     <!--配置数据源-->
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://123.206.59.185:3306/news_spider"/>
-        <property name="username" value="news"/>
-        <property name="password" value="!@#456Qwe"/>
-    </bean>
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+        <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+        <!--<property name="url" value="jdbc:mysql://123.206.59.185:3306/news_spider?characterEncoding=utf-8"/>-->
+        <!--<property name="username" value="news"/>-->
+        <!--<property name="password" value="!@#456Qwe"/>-->
+    <!--</bean>-->
+    <import resource="c3p0.xml"/>
 
     <!--配置MySQL的sqlSessionFactory-->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="mapperLocations" value="classpath:/mappers/*.xml"/>
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+
+    <!-- 三、创建mybatis会话template -->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
     </bean>
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
