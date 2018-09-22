@@ -2,7 +2,6 @@ package com.merphy.common;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.*;
@@ -68,12 +67,17 @@ public class HttpClientUtil {
 
     //创建具体http实现方法
     private static String httpExecute(HttpUriRequest request,String charset) throws IOException{
+        //新建一个httpEntity接受httpResponse 结果
         HttpEntity entity = null;
         try {
             HttpResponse response = httpClient.execute(request);
+            //获取http请求状态码
             StatusLine status = response.getStatusLine();
+            //接受response结果
             entity = response.getEntity();
+            //当状态码为200时在处理处理返回结果
             if (status.getStatusCode() == HttpStatus.SC_OK) {//return 200
+                //写一个方法，获取解码之后的结果
                 String content = toString(entity, charset);
                 entity = null;
                 return content;
@@ -84,6 +88,47 @@ public class HttpClientUtil {
             EntityUtils.consume(entity);
         }
         return null;
+    }
+    //处理返回结果的方法
+    private static String toString(HttpEntity entity, String defaultCharset) throws IOException, ParseException {
+        //加判断条件
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        } else {
+            //获取inputStream
+            InputStream instream = entity.getContent();
+            if (instream == null) {
+                return null;
+                //判断内容长度
+            } else if (entity.getContentLength() > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
+            } else {
+                //获取内容长度
+                int i = (int)entity.getContentLength();
+                if (i < 0) {
+                    i = 4096;//太小的话，给个默认的处理长度
+                }
+                //获取http请求内容设定的内容编码方式
+                String charset = EntityUtils.getContentCharSet(entity);
+                //设定的编码方式为null的时候，给默认的编码方式
+                if (charset == null) {
+                    charset = defaultCharset != null?defaultCharset:"UTF-8";
+                }
+                //定义字符数组对象
+                CharArrayBuffer buffer = new CharArrayBuffer(i);
+                //处理http返回数据内容，定义reader对象
+                try (Reader reader = new InputStreamReader(instream, charset)) {
+                    //每次获取1024个对象
+                    char[] tmp = new char[1024];
+                    int l;
+                    while ((l = reader.read(tmp)) != -1) {
+                        buffer.append(tmp, 0, l);
+                    }
+                }
+                return buffer.toString();
+
+            }
+        }
     }
 
     //处理Get请求
@@ -133,46 +178,8 @@ public class HttpClientUtil {
         return pairs;
     }
 
-    private static String toString(HttpEntity entity, String defaultCharset) throws IOException, ParseException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        } else {
-            InputStream instream = entity.getContent();
-            if (instream == null) {
-                return null;
-            } else if (entity.getContentLength() > Integer.MAX_VALUE) {
-                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-            } else {
-                int i = (int)entity.getContentLength();
-                if (i < 0) {
-                    i = 4096;
-                }
-
-                String charset = EntityUtils.getContentCharSet(entity);
-                if (charset == null) {
-                    charset = defaultCharset != null?defaultCharset:"UTF-8";
-                }
-
-                return readFromHttp(instream, charset, i);
-            }
-        }
-    }
 
 
-    private static String readFromHttp(InputStream instream, String charset, int bufferLength) throws IOException {
-        CharArrayBuffer buffer = new CharArrayBuffer(bufferLength);
-
-        try (Reader reader = new InputStreamReader(instream, charset)) {
-            char[] tmp = new char[1024];
-
-            int l;
-            while ((l = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, l);
-            }
-        }
-
-        return buffer.toString();
-    }
 
     public static void main(String[] args) {
         //测试PGET请求
